@@ -32,8 +32,8 @@ if not public_ssh_key or public_ssh_key.strip() == "":
     print("CRITICAL ERROR: OCI_PUBLIC_SSH_KEY is empty or missing from your secrets!")
     exit(1)
 
-# Availability Domains to cycle through
-ads = ["uufj:PHX-AD-1", "uufj:PHX-AD-2", "uufj:PHX-AD-3"]
+# Availability Domains untuk region Kulai (ap-kulai-2)
+ads = ["ap-kulai-2-AD-1"]
 
 total_attempts = 60 
 
