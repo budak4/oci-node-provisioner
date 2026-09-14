@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Setup configuration from environment variables
 config = {
     "user": os.getenv("OCI_USER_ID"),
     "key_content": os.getenv("OCI_PRIVATE_KEY"),
@@ -16,24 +15,29 @@ config = {
 
 try:
     compute_client = oci.core.ComputeClient(config)
-    print("OCI Authentication Successful. Initializing loop sequence...")
+    identity_client = oci.identity.IdentityClient(config)
+    print("OCI Authentication Successful.")
 except Exception as e:
     print(f"Authentication Failed: {e}")
     exit(1)
 
-# Execution parameters
 compartment_id = os.getenv("OCI_TENANCY_ID")
 subnet_id = os.getenv("OCI_SUBNET_ID")
 image_id = os.getenv("OCI_IMAGE_ID")
 public_ssh_key = os.getenv("OCI_PUBLIC_SSH_KEY") 
 
-# SAFETY CHECK: Verify the key actually loaded from GitHub Secrets
 if not public_ssh_key or public_ssh_key.strip() == "":
     print("CRITICAL ERROR: OCI_PUBLIC_SSH_KEY is empty or missing from your secrets!")
     exit(1)
 
-# Availability Domains untuk region Kulai (ap-kulai-2)
-ads = ["ap-kulai-2-AD-1"]
+# Dapatkan Availability Domains yang sah secara automatik dari region Kulai
+try:
+    ads_response = identity_client.list_availability_domains(compartment_id)
+    ads = [ad.name for ad in ads_response.data]
+    print(f"Detected Availability Domains for region: {ads}")
+except Exception as e:
+    print(f"Failed to fetch Availability Domains: {e}")
+    exit(1)
 
 total_attempts = 60 
 
